@@ -4,9 +4,9 @@ import { toast } from 'react-toastify';
 import api from '~/services/api';
 import history from '~/services/history';
 
-import { signInSuccess, signFailure } from './actions';
+import { signInRequest, signInSuccess, signFailure } from './actions';
 
-function* singIn({ payload }) {
+export function* singIn({ payload }) {
   try {
     const { email, password } = payload;
 
@@ -32,4 +32,26 @@ function* singIn({ payload }) {
   }
 }
 
-export default all([takeLatest('@auth/SIGN_IN_REQUEST', singIn)]);
+export function* signUp({ payload }) {
+  try {
+    const { name, email, password } = payload;
+
+    yield call(api.post, '/users', {
+      name,
+      email,
+      password,
+      provider: true,
+    });
+
+    yield put(signInRequest(email, password));
+    history.push('/');
+  } catch (error) {
+    toast.error('Erro ao criar prestador de serviço');
+    yield put(signFailure());
+  }
+}
+
+export default all([
+  takeLatest('@auth/SIGN_IN_REQUEST', singIn),
+  takeLatest('@auth/SIGN_UP_REQUEST', signUp),
+]);
