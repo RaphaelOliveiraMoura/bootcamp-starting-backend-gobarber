@@ -1,27 +1,17 @@
 import React from 'react';
 import { Form, Input } from '@rocketseat/unform';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { Container } from './styles';
-import api from '~/services/api';
+import { updateProfileRequest } from '~/store/modules/user/actions';
 
 export default function Profile() {
   const profile = useSelector(state => state.user.profile);
 
-  async function handleSubmit({
-    name,
-    email,
-    odlPassword,
-    password,
-    confirmPassword,
-  }) {
-    await api.put('/users', {
-      name,
-      email,
-      odlPassword,
-      password,
-      confirmPassword,
-    });
+  const dispatch = useDispatch();
+
+  async function handleSubmit(data) {
+    dispatch(updateProfileRequest(data));
   }
 
   return (
