@@ -13,11 +13,11 @@ export default async (request, response, next) => {
 
   try {
     const decoded = await promisify(jwt.verify)(token, authConfig.secret);
-    
+
     const user = await User.findByPk(decoded.id);
 
     if (user) {
-      req.userId = decoded.id;
+      request.userId = decoded.id;
     } else {
       throw new Error('Invalid token');
     }
