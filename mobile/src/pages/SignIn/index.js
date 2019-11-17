@@ -4,6 +4,14 @@ import React from 'react';
 
 import Background from '~/components/Background';
 
+import Input from '~/components/Input';
+import Button from '~/components/Button';
+
 export default function SIgnIn() {
-  return <Background />;
+  return (
+    <Background>
+      <Input />
+      <Button>Entrar</Button>
+    </Background>
+  );
 }
