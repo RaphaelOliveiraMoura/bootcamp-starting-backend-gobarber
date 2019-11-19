@@ -1,34 +1,37 @@
-import { all, takeLatest, call, put } from 'redux-saga/effects';
-import { toast } from 'react-toastify';
+import {all, takeLatest, call, put} from 'redux-saga/effects';
+import {Alert} from 'react-native';
 
 import api from '~/services/api';
-import history from '~/services/history';
+// import history from '~/services/history';
 
-import { signInRequest, signInSuccess, signFailure } from './actions';
+import {signInRequest, signInSuccess, signFailure} from './actions';
 
-export function setToken({ payload }) {
+export function setToken({payload}) {
   if (!payload) return;
 
-  const { token } = payload.auth;
+  const {token} = payload.auth;
 
   if (token) {
     api.defaults.headers.Authorization = `Bearer ${token}`;
   }
 }
 
-export function* singIn({ payload }) {
+export function* singIn({payload}) {
   try {
-    const { email, password } = payload;
+    const {email, password} = payload;
 
     const response = yield call(api.post, '/sessions', {
       email,
       password,
     });
 
-    const { token, user } = response.data;
+    const {token, user} = response.data;
 
-    if (!user.provider) {
-      toast.error('Somente providers tem acesso a essa aplicação');
+    if (user.provider) {
+      Alert.alert(
+        'Erro no login',
+        'O usuário não pode ser prestador de serviços'
+      );
       yield put(signFailure());
       return;
     }
@@ -37,34 +40,40 @@ export function* singIn({ payload }) {
 
     yield put(signInSuccess(token, user));
 
-    history.push('Dashboard');
+    // history.push('Dashboard');
   } catch (error) {
-    toast.error('Credenciais inválidas');
+    Alert.alert(
+      'Falha na autenticação',
+      'Credenciais inválidas, verifique seus dados'
+    );
     yield put(signFailure());
   }
 }
 
-export function* signUp({ payload }) {
+export function* signUp({payload}) {
   try {
-    const { name, email, password } = payload;
+    const {name, email, password} = payload;
 
     yield call(api.post, '/users', {
       name,
       email,
       password,
-      provider: true,
+      provider: false,
     });
 
     yield put(signInRequest(email, password));
-    history.push('/');
+    // history.push('/');
   } catch (error) {
-    toast.error('Erro ao criar prestador de serviço');
+    Alert.alert(
+      'Falha na criação',
+      'Erro ao criar usuário, verifique seus dados'
+    );
     yield put(signFailure());
   }
 }
 
 export function signOut() {
-  history.push('/');
+  // history.push('/');
 }
 
 export default all([
