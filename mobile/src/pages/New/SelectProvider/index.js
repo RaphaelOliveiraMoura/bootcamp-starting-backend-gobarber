@@ -1,13 +1,41 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-// import { Container } from './styles';
+import {Container, ProvidersList, Provider, Avatar, Name} from './styles';
 
 import Background from '~/components/Background';
 
+import api from '~/services/api';
+
 export default function SelectProvider() {
-  return <Background />;
+  const [providers, setProviders] = useState([]);
+
+  useEffect(() => {
+    async function loadProviders() {
+      const response = await api.get('/providers');
+      setProviders(response.data);
+    }
+
+    loadProviders();
+  }, []);
+
+  return (
+    <Background>
+      <Container>
+        <ProvidersList
+          data={providers}
+          keyExtractor={provider => String(provider.id)}
+          renderItem={({item}) => (
+            <Provider>
+              <Avatar />
+              <Name>raphael</Name>
+            </Provider>
+          )}
+        />
+      </Container>
+    </Background>
+  );
 }
 
 SelectProvider.navigationOptions = ({navigation}) => ({
